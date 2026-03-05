@@ -12,6 +12,7 @@ import ReservationConfirm from './components/reservations/ReservationConfirm';
 import RelatorioPage from './pages/RelatorioPage';
 import Rooms from './pages/RoomsListPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import NewRoomPage from './pages/NewRoomPage';
 
 function App() {
   return (
@@ -50,7 +51,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRole="GERENTE" />}>
             <Route path="/quartos" element={<Rooms />} />
             
-            {/* <Route path="/quartos/novo" element={<NewRoom />} /> */}
+            <Route path="/quartos/novo" element={<NewRoomPage />} />
             
           </Route>
         </Route>

@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserRole } from '../services/authService';
-import { getMyProfile, updateMyProfile, type ClienteProfile, type ClienteUpdateRequest } from '../services/clienteService';
+import { getMyProfile, updateMyProfile, getMyFuncionarioProfile, updateMyFuncionarioProfile, type ClienteProfile, type ClienteUpdateRequest, type FuncionarioProfile, type FuncionarioUpdateRequest } from '../services/clienteService';
 import { TriangleAlert } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 
+// Interface unificada para o estado do componente
+interface UserProfile extends Partial<ClienteProfile>, Partial<FuncionarioProfile> {
+  // Campos comuns
+  userId: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  
+  // Campos específicos
+  telefone?: string;
+  dataNascimento?: string;
+  cargo?: string;
+  salario?: number;
+  hotelNome?: string;
+}
+
 const ProfilePage: React.FC = () => {
-  const [profile, setProfile] = useState<ClienteProfile | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -15,7 +31,6 @@ const ProfilePage: React.FC = () => {
     nome: '',
     telefone: '',
     dataNascimento: '',
-    cpf: '',
     email: '',
   });
   const navigate = useNavigate();
@@ -26,13 +41,21 @@ const ProfilePage: React.FC = () => {
         const userRole = getUserRole();
         setRole(userRole);
         
-        const data = await getMyProfile();
+        let data: UserProfile;
+        
+        if (userRole === 'FUNCIONARIO') {
+          data = await getMyFuncionarioProfile();
+        } else {
+          data = await getMyProfile();
+        }
+        
         setProfile(data);
+        
+        // Inicializa form data apenas com campos editáveis (que existem em ambos ou só cliente)
         setFormData({
           nome: data.nome,
           telefone: data.telefone || '',
-          dataNascimento: data.dataNascimento,
-          cpf: data.cpf,
+          dataNascimento: data.dataNascimento || '',
           email: data.email,
         });
       } catch (err) {
@@ -61,8 +84,7 @@ const ProfilePage: React.FC = () => {
       setFormData({
         nome: profile.nome,
         telefone: profile.telefone || '',
-        dataNascimento: profile.dataNascimento,
-        cpf: profile.cpf,
+        dataNascimento: profile.dataNascimento || '',
         email: profile.email,
       });
     }
@@ -74,9 +96,30 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    if (!profile) return;
     try {
       setLoading(true);
-      const updatedProfile = await updateMyProfile(formData);
+      
+      let updatedProfile: UserProfile;
+
+      if (role === 'FUNCIONARIO') {
+        const updateData: FuncionarioUpdateRequest = {
+          nome: formData.nome,
+          email: formData.email
+        };
+        const result = await updateMyFuncionarioProfile(updateData);
+        updatedProfile = result as unknown as UserProfile;
+      } else {
+        const updateData: ClienteUpdateRequest = {
+          nome: formData.nome,
+          telefone: formData.telefone || '',
+          dataNascimento: formData.dataNascimento || '',
+          email: formData.email
+        };
+        const result = await updateMyProfile(updateData);
+        updatedProfile = result as UserProfile;
+      }
+
       setProfile(updatedProfile);
       setIsEditing(false);
       alert('Perfil atualizado com sucesso!');
@@ -113,35 +156,27 @@ const ProfilePage: React.FC = () => {
 
         <div className={styles.infoGroup}>
           <label className={styles.label}>CPF</label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="cpf"
-              value={formData.cpf}
-              onChange={handleChange}
-              className={styles.input}
-            />
-          ) : (
-            <div className={`${styles.value} ${styles.readOnly}`}>{profile?.cpf || 'Não disponível'}</div>
-          )}
+          <div className={`${styles.value} ${styles.readOnly}`}>{profile?.cpf || 'Não disponível'}</div>
         </div>
 
-        <div className={styles.infoGroup}>
-          <label className={styles.label}>Data de Nascimento</label>
-          {isEditing ? (
-            <input
-              type="date"
-              name="dataNascimento"
-              value={formData.dataNascimento}
-              onChange={handleChange}
-              className={styles.input}
-            />
-          ) : (
-            <div className={styles.value}>
-              {profile?.dataNascimento ? new Date(profile.dataNascimento).toLocaleDateString('pt-BR') : 'Não disponível'}
-            </div>
-          )}
-        </div>
+        {role !== 'FUNCIONARIO' && (
+          <div className={styles.infoGroup}>
+            <label className={styles.label}>Data de Nascimento</label>
+            {isEditing ? (
+              <input
+                type="date"
+                name="dataNascimento"
+                value={formData.dataNascimento}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            ) : (
+              <div className={styles.value}>
+                {profile?.dataNascimento ? new Date(profile.dataNascimento).toLocaleDateString('pt-BR') : 'Não disponível'}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className={styles.infoGroup}>
           <label className={styles.label}>E-mail</label>
@@ -158,20 +193,22 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
 
-        <div className={styles.infoGroup}>
-          <label className={styles.label}>Telefone</label>
-          {isEditing ? (
-            <input
-              type="text"
-              name="telefone"
-              value={formData.telefone}
-              onChange={handleChange}
-              className={styles.input}
-            />
-          ) : (
-            <div className={styles.value}>{profile?.telefone || 'Não disponível'}</div>
-          )}
-        </div>
+        {role !== 'FUNCIONARIO' && (
+          <div className={styles.infoGroup}>
+            <label className={styles.label}>Telefone</label>
+            {isEditing ? (
+              <input
+                type="text"
+                name="telefone"
+                value={formData.telefone}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            ) : (
+              <div className={styles.value}>{profile?.telefone || 'Não disponível'}</div>
+            )}
+          </div>
+        )}
 
         <div className={styles.infoGroup}>
           <label className={styles.label}>ID do Usuário</label>
@@ -182,6 +219,28 @@ const ProfilePage: React.FC = () => {
           <label className={styles.label}>Tipo de Conta</label>
           <div className={`${styles.value} ${styles.readOnly}`}>{role === 'FUNCIONARIO' ? 'Gerente' : 'Cliente'}</div>
         </div>
+
+        {/* Seção específica para funcionário */}
+        {role === 'FUNCIONARIO' && (
+          <>
+            <div className={styles.infoGroup}>
+              <label className={styles.label}>Cargo</label>
+              <div className={`${styles.value} ${styles.readOnly}`}>{profile?.cargo || 'Não disponível'}</div>
+            </div>
+
+            <div className={styles.infoGroup}>
+              <label className={styles.label}>Hotel</label>
+              <div className={`${styles.value} ${styles.readOnly}`}>{profile?.hotelNome || 'Não disponível'}</div>
+            </div>
+
+            <div className={styles.infoGroup}>
+              <label className={styles.label}>Salário</label>
+              <div className={`${styles.value} ${styles.readOnly}`}>
+                {profile?.salario ? `R$ ${profile.salario.toFixed(2)}` : 'Não disponível'}
+              </div>
+            </div>
+          </>
+        )}
 
         <div className={styles.actions}>
           {isEditing ? (

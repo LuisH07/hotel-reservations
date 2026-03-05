@@ -39,10 +39,9 @@ public class Cliente {
         this.telefone = telefone;
     }
 
-    public void updateProfile(String nome, String telefone, LocalDate dataNascimento, String cpf) {
+    public void updateProfile(String nome, String telefone, LocalDate dataNascimento) {
         this.nome = nome;
         this.telefone = telefone;
         this.dataNascimento = dataNascimento;
-        this.cpf = cpf;
     }
 }

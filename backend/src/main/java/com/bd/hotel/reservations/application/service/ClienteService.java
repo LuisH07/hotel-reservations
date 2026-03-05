@@ -30,7 +30,7 @@ public class ClienteService {
         Cliente cliente = buscarEntidadePorIdUsuario(userId);
         
         // Atualiza dados do cliente
-        cliente.updateProfile(request.getNome(), request.getTelefone(), request.getDataNascimento(), request.getCpf());
+        cliente.updateProfile(request.getNome(), request.getTelefone(), request.getDataNascimento());
         
         // Atualiza email do usuário
         cliente.getUser().updateEmail(request.getEmail());

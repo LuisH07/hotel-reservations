@@ -161,21 +161,22 @@ export default function MinhasReservasPage() {
           </form>
         )}
 
-        {/* Filtro de Status */}
-        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label htmlFor="statusFilter" style={{ fontWeight: 'bold' }}>Filtrar por status:</label>
-          <select
-            id="statusFilter"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
-            className={styles.input}
-            style={{ width: 'auto', padding: '0.5rem' }}
-          >
-            <option value="ALL">Todas</option>
-            <option value="ACTIVE">Ativas</option>
-            <option value="COMPLETED">Concluídas</option>
-            <option value="CANCELLED">Canceladas</option>
-          </select>
+        {/* Filtro de Status - Botões */}
+        <div className={styles.filterContainer}>
+          {[
+            { label: 'Todas', value: 'ALL' },
+            { label: 'Ativas', value: 'ACTIVE' },
+            { label: 'Concluídas', value: 'COMPLETED' },
+            { label: 'Canceladas', value: 'CANCELLED' }
+          ].map(option => (
+            <button
+              key={option.value}
+              onClick={() => setFilterStatus(option.value as any)}
+              className={`${styles.filterButton} ${filterStatus === option.value ? styles.filterButtonActive : ''}`}
+            >
+              {option.label}
+            </button>
+          ))}
         </div>
 
         {error && (

@@ -89,3 +89,41 @@
   flex-direction: column;
   gap: 1.5rem;
 }
+
+.filterContainer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px; /* Pill shape */
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+.filterButtonActive {
+  background-color: #0f172a;
+  color: white;
+  border-color: #0f172a;
+}
+
+.filterButtonActive:hover {
+  background-color: #1e293b;
+  border-color: #1e293b;
+  color: white;
+}

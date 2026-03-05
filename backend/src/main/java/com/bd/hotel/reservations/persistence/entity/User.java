@@ -39,6 +39,10 @@ public class User {
         this.role = newRole;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
         return "User{id=" + id +

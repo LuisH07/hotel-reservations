@@ -1,0 +1,143 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    color: #1e293b;
+  }
+  
+  .title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+    color: #1e293b;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    padding: 2rem;
+  }
+  
+  .infoGroup {
+    margin-bottom: 1.5rem;
+  }
+  
+  .label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .value {
+    font-size: 1.125rem;
+    color: #0f172a;
+    padding: 0.75rem;
+    background-color: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .value.readOnly {
+    color: #64748b;
+    background-color: #f1f5f9;
+  }
+  
+  .input {
+    width: 100%;
+    font-size: 1.125rem;
+    color: #0f172a;
+    padding: 0.75rem;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #94a3b8;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  .noteContainer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+  }
+
+  .noteIcon {
+    color: #f59e0b;
+    flex-shrink: 0;
+  }
+
+  .note {
+    font-size: 0.875rem;
+    color: #b45309;
+    font-style: normal;
+    margin: 0;
+    line-height: 1.5;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+  }
+  
+  .editButton, .logoutButton, .saveButton, .cancelButton {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+  }
+  
+  .editButton {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .editButton:hover {
+    background-color: #2563eb;
+  }
+  
+  .logoutButton {
+    background-color: #ef4444;
+    color: white;
+  }
+  
+  .logoutButton:hover {
+    background-color: #dc2626;
+  }
+  
+  .saveButton {
+    background-color: #10b981;
+    color: white;
+  }
+  
+  .saveButton:hover {
+    background-color: #059669;
+  }
+  
+  .cancelButton {
+    background-color: #94a3b8;
+    color: white;
+  }
+  
+  .cancelButton:hover {
+    background-color: #64748b;
+  }

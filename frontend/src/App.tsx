@@ -13,6 +13,7 @@ import RelatorioPage from './pages/RelatorioPage';
 import Rooms from './pages/RoomsListPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import NewRoomPage from './pages/NewRoomPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -47,6 +48,8 @@ function App() {
           <Route path="reserva/editar/:id" element={<EditReservationPage />} />
 
           <Route path="home/relatorios" element={<RelatorioPage />} />
+
+          <Route path="perfil" element={<ProfilePage />} />
           
           <Route element={<ProtectedRoute allowedRole="FUNCIONARIO" />}>
             <Route path="/quartos" element={<Rooms />} />

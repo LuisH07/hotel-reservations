@@ -15,8 +15,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class ReservaRequest {
 
-    private Long clienteId;
-
     @NotNull(message = "A data de check-in é obrigatória")
     @FutureOrPresent(message = "A data de check-in não pode ser no passado")
     private LocalDate dataCheckinPrevisto;

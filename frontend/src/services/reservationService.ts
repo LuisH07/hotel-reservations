@@ -177,7 +177,7 @@ export const getReservationsByEmail = async (email?: string): Promise<Reservatio
   }
 
   try {
-    const url = email ? `/reservations?email=${email}` : '/reservations';
+    const url = email ? `/reservas/detalhadas?email=${email}` : '/reservas/detalhadas';
     const response = await api.get<ReservationCardProps[]>(url);
     return response.data;
   } catch (error) {
@@ -202,7 +202,7 @@ export const cancelReservationService = async (id: string): Promise<boolean> => 
   // Se não estiver usando Mock, envia comando de exclusão para o backend
   try {
     // Chama a API com o verbo DELETE passando o ID
-    await api.delete(`/reservations/${id}`);
+    await api.delete(`/reservas/${id}`);
     return true; // Retorna true se sucesso (200/204)
   } catch (error) {
     // Em caso de falha na API

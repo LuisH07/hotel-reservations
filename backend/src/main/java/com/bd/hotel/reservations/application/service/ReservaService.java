@@ -9,8 +9,12 @@ import com.bd.hotel.reservations.web.dto.response.ReservaResponse;
 import com.bd.hotel.reservations.web.dto.response.ReservasDetalhadasResponse;
 import com.bd.hotel.reservations.web.mapper.ReservaDetalhadaMapper;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -56,22 +60,53 @@ public class ReservaService {
         }
         return out;
     }
-    
+
+    @Transactional(readOnly = true)
+    public List<ReservasDetalhadasResponse> buscarPorEmail(String email) {
+        List<Reserva> reservas = reservaRepo.findByClienteEmail(email);
+
+        return reservas.stream().map(reserva -> {
+            var cliente = reserva.getCliente();
+            var quarto = reserva.getQuartos().stream().findFirst().orElse(null);
+            var categoria = (quarto != null) ? quarto.getCategoria() : null;
+
+            long dias = ChronoUnit.DAYS.between(reserva.getDataCheckinPrevisto(), reserva.getDataCheckoutPrevisto());
+
+            return new ReservasDetalhadasResponse(
+                    reserva.getId().toString(),
+                    reserva.getStatusReserva().name(),
+                    cliente.getNome(),
+                    cliente.getUser().getEmail(),
+                    cliente.getCpf(),
+                    cliente.getTelefone(),
+                    (quarto != null) ? quarto.getNumero() : "N/A",
+                    (categoria != null) ? categoria.getNome() : "N/A",
+                    (categoria != null) ? categoria.getCapacidade() : 0,
+                    (categoria != null) ? categoria.getPrecoDiaria() : BigDecimal.ZERO,
+                    (categoria != null) ? categoria.getPrecoDiaria().multiply(BigDecimal.valueOf(dias)) : BigDecimal.ZERO,
+                    dias + " noites",
+                    reserva.getDataCheckinPrevisto().toString(),
+                    reserva.getDataCheckoutPrevisto().toString()
+            );
+        }).toList();
+    }
+
     @Transactional
     public ReservaResponse salvar(ReservaRequest dto) {
         validarDatas(dto.getDataCheckinPrevisto(), dto.getDataCheckoutPrevisto());
 
         Reserva reserva = new Reserva();
         
-        if (dto.getClienteId() != null) {
-            Cliente cliente = clienteRepo.findById(dto.getClienteId())
-                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-            reserva.setCliente(cliente);
-        }
+        String emailLogado = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Cliente cliente = clienteRepo.findByUserEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado para o usuário: " + emailLogado));
+        
+        reserva.setCliente(cliente);
 
         List<Quarto> quartos = quartoRepo.findAllById(dto.getQuartoIds());
         if (quartos.isEmpty()) {
-            throw new RuntimeException("Pela menos um quarto deve ser selecionado");
+            throw new RuntimeException("Pelo menos um quarto deve ser selecionado");
         }
 
         reserva.setDataCheckinPrevisto(dto.getDataCheckinPrevisto());
@@ -82,7 +117,7 @@ public class ReservaService {
 
         return new ReservaResponse(
                 reservaSalva.getId(),
-                reservaSalva.getCliente() != null ? reservaSalva.getCliente().getId() : null,
+                reservaSalva.getCliente().getId(),
                 reservaSalva.getDataCheckinPrevisto(),
                 reservaSalva.getDataCheckoutPrevisto(),
                 dto.getQuartoIds(),

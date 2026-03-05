@@ -42,11 +42,8 @@ const ReservationConfirm = () => {
     setIsSubmitting(true);
 
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const clienteId = user.id || 1; 
 
     const reservationData = {
-      clienteId: clienteId,
       dataCheckinPrevisto: checkIn,
       dataCheckoutPrevisto: checkOut,
       quartoIds: [room.id]

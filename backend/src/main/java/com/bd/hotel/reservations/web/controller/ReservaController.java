@@ -20,9 +20,12 @@ public class ReservaController {
 
     private final ReservaService reservaService;
 
-    // Endpoint original do seu colega
+    // READ
     @GetMapping("/detalhadas")
-    public List<ReservasDetalhadasResponse> listar() {
+    public List<ReservasDetalhadasResponse> listar(@RequestParam(required = false) String email) {
+        if (email != null && !email.isBlank()) {
+            return reservaService.buscarPorEmail(email);
+        }
         return reservaService.listarReservasDetalhadas();
     }
 

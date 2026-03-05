@@ -21,7 +21,7 @@ const EmailInput = forwardRef<HTMLInputElement, EmailProps>(({
   disabled
 }, ref) => {
   return (
-    <>
+    <div>
       <label htmlFor={name} className={styles.label}>
         {label}
         {required && <span className={styles.required}>*</span>}
@@ -38,7 +38,7 @@ const EmailInput = forwardRef<HTMLInputElement, EmailProps>(({
         required={required}
         ref={ref}
       />
-    </>
+    </div>
   );
 });
 

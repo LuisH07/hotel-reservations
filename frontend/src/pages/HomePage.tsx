@@ -185,7 +185,7 @@ const HomePage = () => {
                 key={room.id}
                 id={room.id}
                 type={room.tipo} 
-                description={`Quarto número ${room.numero}`} 
+                description={`Quarto n°${room.numero}`} 
                 checkIn={booking.checkIn} 
                 checkOut={booking.checkOut}
                 price={`R$ ${room.preco} / noite`}

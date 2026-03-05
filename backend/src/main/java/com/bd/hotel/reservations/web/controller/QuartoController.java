@@ -6,6 +6,7 @@ import com.bd.hotel.reservations.web.dto.response.QuartoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -31,5 +32,11 @@ public class QuartoController {
     @GetMapping("/{id}")
     public ResponseEntity<QuartoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(quartoService.buscarPorId(id));
+    }
+
+    @GetMapping("/hotel/{hotelId}")
+    @PreAuthorize("hasRole('FUNCIONARIO')")
+    public ResponseEntity<List<QuartoResponse>> listarTodosPorHotel(@PathVariable Long hotelId) {
+        return ResponseEntity.ok(quartoService.listarTodosPorHotel(hotelId));
     }
 }

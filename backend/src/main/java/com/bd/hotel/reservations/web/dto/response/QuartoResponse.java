@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Builder
 @Getter
@@ -15,4 +16,5 @@ public class QuartoResponse {
     BigDecimal area;
     Long hotelId;
     CategoriaResponse categoria;
+    List<ComodidadeResponse> comodidades;
 }

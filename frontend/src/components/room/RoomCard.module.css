@@ -1,15 +1,30 @@
 .roomCard {
   background: white;
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.managerCard {
   cursor: pointer;
 }
 
 .roomCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.clickableWrapper {
+  height: 100%;
 }
 
 .roomImage {
@@ -22,31 +37,56 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.5rem;
+  flex-grow: 1;
 }
 
-.roomInfo .roomType {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
+.roomType {
   margin: 0;
+  font-size: 1.25rem;
+  color: #333;
 }
 
-.roomInfo .roomDescription {
-  color: #4b5563;
-  font-size: 0.875rem;
-  margin: 4px 0;
+.roomDescription {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
 }
 
 .roomDate {
-  color: #9ca3af;
-  font-size: 0.875rem;
+  font-size: 0.85rem;
+  background: #f0f4f8;
+  border-radius: 4px;
+  color: #555;
+  align-self: flex-start;
 }
 
 .roomPrice {
-  font-weight: 800;
-  color: #111827;
-  margin-top: 8px;
+  font-weight: bold;
+  color: #183964;
+  margin-top: auto;
   font-size: 1.1rem;
 }
 
+.deleteButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #dc3545;
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.deleteButton:hover {
+  background: #dc3545;
+  color: white;
+}

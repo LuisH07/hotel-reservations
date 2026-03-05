@@ -1,0 +1,55 @@
+import api from './api';
+
+export interface CategoriaResponse {
+  id: number;
+  nome: string;
+  capacidade: number;
+  precoDiaria: number;
+  descricao?: string;
+}
+
+export interface ComodidadeResponse {
+  id: number;
+  nome: string;
+}
+
+export interface Room {
+  id: number;
+  numero: string;
+  status: 'DISPONIVEL' | 'OCUPADO' | 'MANUTENCAO';
+  area: number;
+  hotelId: number;
+  categoria: CategoriaResponse;
+  comodidades: ComodidadeResponse[];
+  image?: string;
+}
+
+export const getRoomsByHotel = async (hotelId: number): Promise<Room[]> => {
+  try {
+    const response = await api.get<Room[]>(`/quartos/hotel/${hotelId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar quartos por hotel:', error);
+    throw error;
+  }
+};
+
+export const deleteRoomService = async (id: number): Promise<boolean> => {
+  try {
+    await api.delete(`/quartos/${id}`);
+    return true;
+  } catch (error) {
+    console.error('Erro ao deletar quarto:', error);
+    return false;
+  }
+};
+
+export const updateRoomService = async (id: number, data: Partial<Room>): Promise<boolean> => {
+  try {
+    await api.put(`/quartos/${id}`, data);
+    return true;
+  } catch (error) {
+    console.error('Erro ao atualizar quarto:', error);
+    return false;
+  }
+};

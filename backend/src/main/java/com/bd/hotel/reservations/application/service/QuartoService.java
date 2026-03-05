@@ -65,4 +65,21 @@ public class QuartoService {
 
         return quartoMapper.toResponse(quarto);
     }
+
+    @Transactional(readOnly = true)
+    public List<QuartoResponse> listarTodosPorHotel(Long hotelId) {
+        List<Quarto> quartos = quartoRepository.findByHotelId(hotelId);
+        
+        if (quartos.isEmpty()) return List.of();
+
+        quartos.forEach(quarto -> {
+            Hibernate.initialize(quarto.getCategoria());
+            Hibernate.initialize(quarto.getHotel());
+            Hibernate.initialize(quarto.getComodidades());
+        });
+
+        return quartos.stream()
+                .map(quartoMapper::toResponse)
+                .toList();
+    }
 }

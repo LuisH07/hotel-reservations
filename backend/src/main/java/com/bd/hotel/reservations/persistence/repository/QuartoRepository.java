@@ -19,4 +19,9 @@ public interface QuartoRepository extends JpaRepository<Quarto, Long> {
      * Busca um quarto pelo número.
      */
     List<Quarto> findByNumero(String numero);
+
+    /**
+     * Busca todos os quartos pelo id do hotel
+     */
+    List<Quarto> findByHotelId(Long hotelId);
 }

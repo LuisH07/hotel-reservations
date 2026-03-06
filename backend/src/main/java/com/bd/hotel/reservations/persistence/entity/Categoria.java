@@ -29,4 +29,10 @@ public class Categoria {
 
     @Column(nullable = false)
     private Integer capacidade;
+
+    public void atualizar(BigDecimal precoDiaria, String nome, Integer capacidade) {
+        this.precoDiaria = precoDiaria;
+        this.nome = nome;
+        this.capacidade = capacidade;
+    }
 }

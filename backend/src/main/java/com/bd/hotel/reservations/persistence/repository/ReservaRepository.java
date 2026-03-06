@@ -13,6 +13,6 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     
     List<Reserva> findByClienteId(Long clienteId);
 
-    @Query("SELECT r FROM Reserva r JOIN FETCH r.quartos JOIN FETCH r.cliente c JOIN FETCH c.user WHERE c.user.email = :email")
+    @Query("SELECT r FROM Reserva r JOIN FETCH r.quarto JOIN FETCH r.cliente c JOIN FETCH c.user WHERE c.user.email = :email")
     List<Reserva> findByClienteEmail(@Param("email") String email);
 }

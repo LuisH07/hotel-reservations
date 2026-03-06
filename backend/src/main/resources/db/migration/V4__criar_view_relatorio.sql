@@ -1,13 +1,13 @@
 CREATE OR REPLACE VIEW vw_relatorio_reservas AS
 WITH
--- total de reservas no sistema (exceto canceladas, se você quiser contar canceladas, remova o WHERE)
+-- total de reservas no sistema
 total_reservas AS (
     SELECT COUNT(*)::bigint AS total
     FROM reserva r
     WHERE r.status_reserva <> 'CANCELADA'
 ),
 
--- reservas "ativas hoje": hóspedes com hospedagem aberta (checkout real ainda não ocorreu)
+-- reservas "ativas hoje"
 reservas_ativas_hoje AS (
     SELECT COUNT(*)::bigint AS total
     FROM hospedagem h
@@ -15,52 +15,45 @@ reservas_ativas_hoje AS (
       AND h.data_checkin_real::date <= current_date
 ),
 
--- receita estimada total (por reserva): noites * preco_diaria, somando por quartos da reserva
+-- receita estimada total
 receita_estimada_total AS (
     SELECT COALESCE(SUM(
                             (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
                     ), 0)::numeric(12,2) AS total
     FROM reserva r
-             JOIN reserva_quarto rq ON rq.reserva_id = r.id
-             JOIN quarto q ON q.id = rq.quarto_id
+             JOIN quarto q ON q.id = r.quarto_id
              JOIN categoria cat ON cat.id = q.categoria_id
     WHERE r.status_reserva <> 'CANCELADA'
 ),
 
--- receita estimada do mês atual (baseada no mês do check-in previsto)
+-- receita estimada do mês atual
 receita_mes_atual AS (
     SELECT COALESCE(SUM(
                             (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
                     ), 0)::numeric(12,2) AS total
     FROM reserva r
-             JOIN reserva_quarto rq ON rq.reserva_id = r.id
-             JOIN quarto q ON q.id = rq.quarto_id
+             JOIN quarto q ON q.id = r.quarto_id
              JOIN categoria cat ON cat.id = q.categoria_id
     WHERE r.status_reserva <> 'CANCELADA'
       AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
 ),
 
--- ocupação hoje: quartos ocupados / quartos totais * 100
--- "ocupados hoje" = quartos em hospedagens abertas
+-- ocupacao_hoje
 ocupacao_hoje AS (
     SELECT
         COALESCE(ROUND(
                          CASE
                              WHEN COUNT(q.id) = 0 THEN 0
-                             ELSE (COUNT(DISTINCT hq.quarto_id)::numeric / COUNT(q.id)::numeric) * 100
+                             ELSE (COUNT(DISTINCT h.quarto_id)::numeric / COUNT(q.id)::numeric) * 100
                              END
                      , 1), 0)::numeric(5,1) AS taxa
     FROM quarto q
-             LEFT JOIN hospedagem_quarto hq ON hq.quarto_id = q.id
-             LEFT JOIN hospedagem h ON h.id = hq.hospedagem_id
+             LEFT JOIN hospedagem h ON h.quarto_id = q.id
         AND h.data_checkout_real IS NULL
         AND h.data_checkin_real::date <= current_date
-
-    
 ),
 
--- taxa de cancelamento no mês: (quantidade de reservas canceladas / total de reservas cadastradas no mês) * 100
--- considera todas as reservas cujo check-in estava previsto para o mês atual
+-- taxa de cancelamento no mês
 taxa_cancelamento_mes AS (
     SELECT COALESCE(ROUND(
         CASE WHEN COUNT(*) = 0 THEN 0
@@ -70,8 +63,7 @@ taxa_cancelamento_mes AS (
     WHERE date_trunc('month', data_checkin_previsto) = date_trunc('month', current_date)
 ),
 
--- média de permanência no mês: média matemática da diferença de dias entre o check-out e o check-in
--- filtra apenas as reservas não canceladas com check-in previsto para o mês atual
+-- média de permanência no mês
 media_permanencia_mes AS (
     SELECT COALESCE(ROUND(
         AVG((data_checkout_previsto - data_checkin_previsto)::numeric), 1
@@ -81,30 +73,26 @@ media_permanencia_mes AS (
       AND date_trunc('month', data_checkin_previsto) = date_trunc('month', current_date)
 ),
 
--- valor perdido por cancelamentos no mês: somatório da receita (noites * preço da diária) que deixou de entrar
--- considera exclusivamente as reservas com status 'CANCELADA' do mês atual.
+-- valor perdido por cancelamentos no mês
 valor_perdido_cancelamentos_mes AS (
     SELECT COALESCE(SUM(
         (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
     ), 0)::numeric(12,2) AS total
     FROM reserva r
-    JOIN reserva_quarto rq ON rq.reserva_id = r.id
-    JOIN quarto q ON q.id = rq.quarto_id
+    JOIN quarto q ON q.id = r.quarto_id
     JOIN categoria cat ON cat.id = q.categoria_id
     WHERE r.status_reserva = 'CANCELADA'
       AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
 ),
 
--- ticket médio por cliente no mês: receita total do mês dividida pela quantidade de clientes únicos (CPFs distintos)
--- conta apenas clientes com reservas válidas (não canceladas) no mês atual para saber quanto cada um gasta em média
+-- ticket médio por cliente no mês
 ticket_medio_cliente_mes AS (
     SELECT COALESCE(ROUND(
         CASE WHEN COUNT(DISTINCT r.cliente_id) = 0 THEN 0
         ELSE SUM((r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria) / COUNT(DISTINCT r.cliente_id)
         END, 2), 0)::numeric(12,2) AS valor
     FROM reserva r
-    JOIN reserva_quarto rq ON rq.reserva_id = r.id
-    JOIN quarto q ON q.id = rq.quarto_id
+    JOIN quarto q ON q.id = r.quarto_id
     JOIN categoria cat ON cat.id = q.categoria_id
     WHERE r.status_reserva <> 'CANCELADA'
       AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)

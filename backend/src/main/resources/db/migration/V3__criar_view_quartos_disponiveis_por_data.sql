@@ -4,11 +4,10 @@ WITH calendario AS (
 ),
      reservas_ativas AS (
          SELECT
-             rq.quarto_id,
+             r.quarto_id,
              r.data_checkin_previsto,
              r.data_checkout_previsto
          FROM reserva r
-                  JOIN reserva_quarto rq ON rq.reserva_id = r.id
          WHERE r.status_reserva IN ('PENDENTE', 'CONFIRMADA')
      )
 SELECT

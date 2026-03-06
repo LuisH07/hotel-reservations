@@ -1,8 +1,8 @@
 CREATE OR REPLACE VIEW vw_reservas_detalhadas AS
 WITH quartos_por_reserva AS (
     SELECT
-        rq.reserva_id,
-        COUNT(*) AS qtd_quartos,
+        r.id AS reserva_id,
+        1 AS qtd_quartos,
         jsonb_agg(
                 jsonb_build_object(
                         'quarto_id', q.id,
@@ -16,13 +16,12 @@ WITH quartos_por_reserva AS (
                         'capacidade', cat.capacidade,
                         'preco_diaria', cat.preco_diaria
                 )
-                ORDER BY q.numero
         ) AS quartos
-    FROM reserva_quarto rq
-             JOIN quarto q ON q.id = rq.quarto_id
+    FROM reserva r
+             JOIN quarto q ON q.id = r.quarto_id
              JOIN hotel h ON h.id = q.hotel_id
              JOIN categoria cat ON cat.id = q.categoria_id
-    GROUP BY rq.reserva_id
+    GROUP BY r.id
 ),
      servicos_por_reserva AS (
          SELECT

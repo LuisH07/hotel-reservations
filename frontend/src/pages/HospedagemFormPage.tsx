@@ -206,17 +206,18 @@ export const HospedagemFormPage: React.FC = () => {
       dataSaida: formData.dataSaida,
       pagamento: {
         metodoPagamento: formData.metodoPagamento,
-        status: 'PAGO',
+        status: 'CONCLUIDO',
         valorTotal: valorTotalFinal,
         dataPagamento: new Date().toISOString()
-      }
+      },
+      servicosAdicionaisIds: selectedServices
     };
     console.log("Payload enviado para backend: ", payload);
 
     try {
       await createHospedagem(payload);
       toast.success("Hospedagem iniciada com sucesso!");
-      navigate('/reservas'); 
+      navigate('/home/reservas'); 
     } catch (error) {
       console.log("Erro ao salvar hospedagem", error);
       toast.error("Erro ao salvar hospedagem.");

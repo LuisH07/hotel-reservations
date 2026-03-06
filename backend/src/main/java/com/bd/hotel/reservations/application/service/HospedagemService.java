@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,42 +16,48 @@ public class HospedagemService {
     private final HospedagemRepository hospedagemRepo;
     private final ReservaRepository reservaRepo;
     private final ClienteRepository clienteRepo;
-    private final ServicoAdicionalRepository servicoRepo;
+    private final QuartoRepository quartoRepo; 
 
     @Transactional
     public Hospedagem salvarHospedagem(HospedagemRequest dto) {
-        Reserva reserva = reservaRepo.findById(dto.reservaId())
-                .orElseThrow(() -> new RuntimeException("Reserva não encontrada"));
+        
+        Cliente cliente = clienteRepo.findByCpf(dto.clienteCpf())
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com CPF: " + dto.clienteCpf()));
 
-        Cliente cliente = clienteRepo.findByCpf(dto.cpfCliente())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado com CPF: " + dto.cpfCliente()));
+        Quarto quarto = quartoRepo.findById(dto.quartoId())
+                .orElseThrow(() -> new RuntimeException("Quarto não encontrado com ID: " + dto.quartoId()));
+
+        Reserva reserva = null;
+        if (dto.reservaId() != null) {
+            reserva = reservaRepo.findById(dto.reservaId())
+                    .orElseThrow(() -> new RuntimeException("Reserva não encontrada com ID: " + dto.reservaId()));
+            
+            if (reserva.getHospedagem() != null) {
+                throw new RuntimeException("Já existe uma hospedagem registrada para esta reserva.");
+            }
+        }
 
         Hospedagem hospedagem = new Hospedagem();
         hospedagem.setReserva(reserva);
         hospedagem.setCliente(cliente);
-        hospedagem.setQuarto(reserva.getQuarto()); 
-        hospedagem.setDataCheckinReal(Instant.now());
-
+        hospedagem.setQuarto(quarto);
+        hospedagem.setDataCheckinReal(Instant.now()); 
+        
         Pagamento pagamento = new Pagamento();
         pagamento.setHospedagem(hospedagem);
-        pagamento.setReserva(reserva);
         pagamento.setValorTotal(dto.pagamento().valorTotal());
         pagamento.setMetodoPagamento(dto.pagamento().metodoPagamento());
-        pagamento.setStatusPagamento(dto.pagamento().statusPagamento());
-        pagamento.setDataPagamento(Instant.now());
+        pagamento.setStatusPagamento(dto.pagamento().status());
+        
+        pagamento.setDataPagamento(dto.pagamento().dataPagamento() != null 
+                ? dto.pagamento().dataPagamento() 
+                : Instant.now());
 
         hospedagem.getPagamentos().add(pagamento);
 
-        if (dto.servicosAdicionaisIds() != null && !dto.servicosAdicionaisIds().isEmpty()) {
-            List<ServicoAdicional> servicosEncontrados = servicoRepo.findAllById(dto.servicosAdicionaisIds());
-            
-            for (ServicoAdicional servico : servicosEncontrados) {
-                HospedagemServico hs = new HospedagemServico(hospedagem, servico, null);
-                hospedagem.getServicos().add(hs);
-            }
+        if (reserva != null) {
+            reserva.setHospedagem(hospedagem);
         }
-
-        reserva.setHospedagem(hospedagem);
 
         return hospedagemRepo.save(hospedagem);
     }

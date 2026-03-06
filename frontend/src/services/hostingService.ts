@@ -36,6 +36,8 @@ export interface CriarHospedagemRequest {
         valorTotal: number;
         dataPagamento: string;
     };
+    servicosAdicionaisIds: number[];
+    
 }
 
 /**

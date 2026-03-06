@@ -38,9 +38,13 @@ export const deleteRoomService = async (id: number): Promise<boolean> => {
   try {
     await api.delete(`/quartos/${id}`);
     return true;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response && error.response.data && error.response.data.detail) {
+      throw new Error(error.response.data.detail);
+    }
+    
     console.error('Erro ao deletar quarto:', error);
-    return false;
+    throw new Error('Ocorreu um erro inesperado ao tentar deletar o quarto.');
   }
 };
 

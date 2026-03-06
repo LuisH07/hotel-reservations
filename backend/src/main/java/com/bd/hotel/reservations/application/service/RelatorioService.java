@@ -1,7 +1,7 @@
 package com.bd.hotel.reservations.application.service;
 
 import com.bd.hotel.reservations.persistence.repository.RelatorioRepository;
-import com.bd.hotel.reservations.persistence.repository.RelatorioRowDto;
+import com.bd.hotel.reservations.web.dto.request.RelatorioRowDto;
 import com.bd.hotel.reservations.web.dto.response.RelatorioResponse;
 import com.bd.hotel.reservations.web.mapper.RelatorioMapper;
 import lombok.RequiredArgsConstructor;

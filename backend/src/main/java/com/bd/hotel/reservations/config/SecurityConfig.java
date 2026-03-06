@@ -56,7 +56,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Profile("dev")
     public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) {
         return baseSecurityFilterChain(http)
                 .authorizeHttpRequests(auth -> auth

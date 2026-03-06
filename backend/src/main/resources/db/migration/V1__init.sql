@@ -133,10 +133,10 @@ CREATE TABLE reserva
     data_reserva           TIMESTAMPTZ NOT NULL DEFAULT now(),
     data_checkin_previsto  DATE     NOT NULL,
     data_checkout_previsto DATE     NOT NULL,
-    status_reserva         VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
+    status_reserva         VARCHAR(20) NOT NULL DEFAULT 'CONFIRMADA',
     CONSTRAINT fk_reserva_cliente
         FOREIGN KEY (cliente_id) REFERENCES cliente (id),
-    CONSTRAINT chk_status_reserva CHECK (status_reserva IN ('PENDENTE','CONFIRMADA','CANCELADA','CONCLUIDA')),
+    CONSTRAINT chk_status_reserva CHECK (status_reserva IN ('CONFIRMADA','CANCELADA','CONCLUIDA')),
     CONSTRAINT chk_datas_reserva CHECK (data_checkin_previsto < data_checkout_previsto)
 );
 

@@ -3,56 +3,44 @@ package com.bd.hotel.reservations.application.service;
 import com.bd.hotel.reservations.persistence.entity.Cliente;
 import com.bd.hotel.reservations.persistence.entity.User;
 import com.bd.hotel.reservations.persistence.repository.ClienteRepository;
+import com.bd.hotel.reservations.web.mapper.ClienteMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import com.bd.hotel.reservations.web.dto.response.ClienteResponse;
 import com.bd.hotel.reservations.exception.notfound.ClienteNotFoundException;
-
 import com.bd.hotel.reservations.web.dto.request.ClienteUpdateRequest;
 
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
-    private final ClienteRepository clienteRepo;
+    private final ClienteRepository clienteRepository;
+    private final ClienteMapper clienteMapper;
 
     @Transactional
     public ClienteResponse buscarPorIdUsuario(Long userId) {
-        Cliente cliente = buscarEntidadePorIdUsuario(userId);
+        Cliente cliente = buscarClientePorId(userId);
 
-        return toResponse(cliente);
+        return clienteMapper.toResponse(cliente);
     }
 
-    @Transactional
-    public ClienteResponse atualizarPerfil(Long userId, ClienteUpdateRequest request) {
-        Cliente cliente = buscarEntidadePorIdUsuario(userId);
-        
-        // Atualiza dados do cliente
-        cliente.updateProfile(request.getNome(), request.getTelefone(), request.getDataNascimento());
-        
-        // Atualiza email do usuário
-        cliente.getUser().updateEmail(request.getEmail());
-
-        return toResponse(clienteRepo.save(cliente));
+    public Cliente buscarClientePorId(Long userId) {
+        return clienteRepository.findByUserId(userId)
+                .orElseThrow(() -> new ClienteNotFoundException(userId));
     }
 
-    private Cliente buscarEntidadePorIdUsuario(Long userId) {
-        return clienteRepo.findByUserId(userId)
-                .orElseThrow(() -> new ClienteNotFoundException("Cliente não encontrado para o usuário: " + userId));
+    public Cliente buscarClienteLogado() {
+        String emailLogado = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+        return buscarClientePorEmail(emailLogado);
     }
 
-    private ClienteResponse toResponse(Cliente cliente) {
-        return ClienteResponse.builder()
-                .id(cliente.getId())
-                .userId(cliente.getUser().getId())
-                .nome(cliente.getNome())
-                .cpf(cliente.getCpf())
-                .telefone(cliente.getTelefone())
-                .dataNascimento(cliente.getDataNascimento())
-                .email(cliente.getUser().getEmail())
-                .build();
+    private Cliente buscarClientePorEmail(String email) {
+        return clienteRepository.findByUserEmail(email)
+                .orElseThrow(() -> new ClienteNotFoundException(email));
     }
 
     @Transactional
@@ -65,6 +53,19 @@ public class ClienteService {
                 .dataNascimento(dataNascimento)
                 .build();
 
-        clienteRepo.save(cliente);
+        clienteRepository.save(cliente);
+    }
+
+    @Transactional
+    public ClienteResponse atualizarPerfil(Long userId, ClienteUpdateRequest request) {
+        Cliente cliente = buscarClientePorId(userId);
+        
+        // Atualiza dados do cliente
+        cliente.updateProfile(request.getNome(), request.getTelefone(), request.getDataNascimento(), request.getCpf());
+        
+        // Atualiza email do usuário
+        cliente.getUser().updateEmail(request.getEmail());
+
+        return toResponse(clienteRepository.save(cliente));
     }
 }

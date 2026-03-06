@@ -33,32 +33,31 @@ public class AuthService {
     private final ClienteRepository clienteRepository;
     private final ClienteService clienteService;
 
-    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
     public void register(ClienteRegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyRegisteredException(request.getEmail());
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyRegisteredException(request.email());
         }
 
-        if (clienteRepository.existsByCpf(request.getCpf())) {
-            throw new CpfAlreadyRegisteredException(request.getCpf());
+        if (clienteRepository.existsByCpf(request.cpf())) {
+            throw new CpfAlreadyRegisteredException(request.cpf());
         }
 
         User user = userService.criarUsuario(
-                request.getEmail(),
-                request.getPassword(),
+                request.email(),
+                request.password(),
                 Role.CLIENTE
         );
 
         clienteService.criarPerfil(
                 user,
-                request.getNome(),
-                request.getCpf(),
-                request.getTelefone(),
-                request.getDataNascimento()
+                request.nome(),
+                request.cpf(),
+                request.telefone(),
+                request.dataNascimento()
         );
     }
 
@@ -67,7 +66,7 @@ public class AuthService {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
             );
         } catch (AuthenticationException authenticationException) {
             throw new InvalidCredentialsException();
@@ -82,11 +81,11 @@ public class AuthService {
         Role role = principal.getRole();
         String token = jwtService.generateToken(defaultClaims(role), principal);
 
-        return LoginResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .expiresIn(jwtService.getExpirationSeconds())
-                .build();
+        return new LoginResponse(
+                token,
+                "Bearer",
+                jwtService.getExpirationSeconds()
+        );
     }
 
     private Map<String, Object> defaultClaims(Role role) {

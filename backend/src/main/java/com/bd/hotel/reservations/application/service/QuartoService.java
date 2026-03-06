@@ -12,8 +12,7 @@ import com.bd.hotel.reservations.persistence.repository.ComodidadeRepository;
 import com.bd.hotel.reservations.persistence.repository.HotelRepository;
 import com.bd.hotel.reservations.persistence.repository.QuartoRepository;
 import com.bd.hotel.reservations.persistence.repository.QuartosDisponiveisViewRepository;
-import com.bd.hotel.reservations.persistence.repository.QuartosDisponiveisViewRowDto;
-import com.bd.hotel.reservations.web.dto.request.QuartoRequest;
+import com.bd.hotel.reservations.web.dto.request.QuartosDisponiveisViewRowDto;
 import com.bd.hotel.reservations.web.dto.response.QuartoDisponivelResponse;
 import com.bd.hotel.reservations.web.dto.response.QuartoResponse;
 import com.bd.hotel.reservations.web.mapper.QuartoDisponivelMapper;
@@ -34,7 +33,8 @@ import java.util.Set;
 public class QuartoService {
 
     private final QuartosDisponiveisViewRepository viewRepo;
-    private final QuartoDisponivelMapper mapper;
+    private final QuartoDisponivelMapper quartoDisponivelMapper;
+
     private final QuartoRepository quartoRepository;
     private final QuartoMapper quartoMapper;
     
@@ -80,7 +80,7 @@ public class QuartoService {
 
         List<QuartoDisponivelResponse> out = new ArrayList<>(rows.size());
         for (QuartosDisponiveisViewRowDto r : rows) {
-            out.add(mapper.toResponse(r, dataExibicaoMock));
+            out.add(quartoDisponivelMapper.toResponse(r, dataExibicaoMock));
         }
 
         return out;
@@ -91,7 +91,7 @@ public class QuartoService {
         Quarto quarto = quartoRepository.findById(id)
                 .orElseThrow(() -> new QuartoNotFoundException(id));
 
-        // evita LazyInitializationException no mapper
+        // evita LazyInitializationException no quartoDisponivelMapper
         Hibernate.initialize(quarto.getCategoria());
         Hibernate.initialize(quarto.getHotel());
         Hibernate.initialize(quarto.getComodidades());

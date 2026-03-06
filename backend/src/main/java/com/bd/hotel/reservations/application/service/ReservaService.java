@@ -9,6 +9,8 @@ import com.bd.hotel.reservations.web.dto.request.ReservaRequest;
 import com.bd.hotel.reservations.web.dto.response.ReservaResponse;
 import com.bd.hotel.reservations.web.dto.response.ReservasDetalhadasResponse;
 import com.bd.hotel.reservations.web.mapper.ReservaDetalhadaMapper;
+
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -169,6 +171,16 @@ public class ReservaService {
         }
         
         reserva.setStatusReserva(StatusReserva.CANCELADA);
+        reservaRepo.save(reserva);
+    }
+
+    @Transactional
+    public void concluir(Long id) {
+        Reserva reserva = reservaRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Reserva não encontrada com o ID: " + id));
+
+        reserva.setStatusReserva(StatusReserva.CONCLUIDA);
+        
         reservaRepo.save(reserva);
     }
 

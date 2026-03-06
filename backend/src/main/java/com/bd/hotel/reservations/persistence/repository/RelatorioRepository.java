@@ -30,9 +30,8 @@ public class RelatorioRepository {
                   AND (
                       ? IS NULL OR EXISTS (
                           SELECT 1
-                          FROM hospedagem_quarto hq
-                          JOIN quarto q ON q.id = hq.quarto_id
-                          WHERE hq.hospedagem_id = h.id
+                          FROM quarto q 
+                          WHERE q.id = h.quarto_id
                             AND q.hotel_id = ?
                       )
                   )
@@ -42,8 +41,7 @@ public class RelatorioRepository {
                     (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
                 ), 0)::numeric(12,2) AS total
                 FROM reserva r
-                JOIN reserva_quarto rq ON rq.reserva_id = r.id
-                JOIN quarto q ON q.id = rq.quarto_id
+                JOIN quarto q ON q.id = r.quarto_id
                 JOIN categoria cat ON cat.id = q.categoria_id
                 WHERE r.status_reserva <> 'CANCELADA'
                   AND (? IS NULL OR q.hotel_id = ?)
@@ -53,8 +51,7 @@ public class RelatorioRepository {
                     (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
                 ), 0)::numeric(12,2) AS total
                 FROM reserva r
-                JOIN reserva_quarto rq ON rq.reserva_id = r.id
-                JOIN quarto q ON q.id = rq.quarto_id
+                JOIN quarto q ON q.id = r.quarto_id
                 JOIN categoria cat ON cat.id = q.categoria_id
                 WHERE r.status_reserva <> 'CANCELADA'
                   AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
@@ -66,14 +63,13 @@ public class RelatorioRepository {
                         CASE
                             WHEN COUNT(q.id) = 0 THEN 0
                             ELSE (
-                                COUNT(DISTINCT hq.quarto_id)::numeric
+                                COUNT(DISTINCT h.quarto_id)::numeric
                                 / COUNT(q.id)::numeric
                             ) * 100
                         END
                     , 1), 0)::numeric(5,1) AS taxa
                 FROM quarto q
-                LEFT JOIN hospedagem_quarto hq ON hq.quarto_id = q.id
-                LEFT JOIN hospedagem h ON h.id = hq.hospedagem_id
+                LEFT JOIN hospedagem h ON h.quarto_id = q.id
                     AND h.data_checkout_real IS NULL
                     AND h.data_checkin_real::date <= current_date
                 WHERE (? IS NULL OR q.hotel_id = ?)
@@ -87,8 +83,8 @@ public class RelatorioRepository {
                 FROM reserva r
                 WHERE date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
                   AND (? IS NULL OR EXISTS (
-                      SELECT 1 FROM reserva_quarto rq JOIN quarto q ON q.id = rq.quarto_id
-                      WHERE rq.reserva_id = r.id AND q.hotel_id = ?
+                      SELECT 1 FROM quarto q 
+                      WHERE q.id = r.quarto_id AND q.hotel_id = ?
                   ))
             ),
             media_permanencia_mes AS (
@@ -99,8 +95,8 @@ public class RelatorioRepository {
                 WHERE r.status_reserva <> 'CANCELADA'
                   AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
                   AND (? IS NULL OR EXISTS (
-                      SELECT 1 FROM reserva_quarto rq JOIN quarto q ON q.id = rq.quarto_id
-                      WHERE rq.reserva_id = r.id AND q.hotel_id = ?
+                      SELECT 1 FROM quarto q 
+                      WHERE q.id = r.quarto_id AND q.hotel_id = ?
                   ))
             ),
             valor_perdido_cancelamentos_mes AS (
@@ -108,8 +104,7 @@ public class RelatorioRepository {
                     (r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria
                 ), 0)::numeric(12,2) AS total
                 FROM reserva r
-                JOIN reserva_quarto rq ON rq.reserva_id = r.id
-                JOIN quarto q ON q.id = rq.quarto_id
+                JOIN quarto q ON q.id = r.quarto_id
                 JOIN categoria cat ON cat.id = q.categoria_id
                 WHERE r.status_reserva = 'CANCELADA'
                   AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)
@@ -121,8 +116,7 @@ public class RelatorioRepository {
                     ELSE SUM((r.data_checkout_previsto - r.data_checkin_previsto) * cat.preco_diaria) / COUNT(DISTINCT r.cliente_id)
                     END, 2), 0)::numeric(12,2) AS valor
                 FROM reserva r
-                JOIN reserva_quarto rq ON rq.reserva_id = r.id
-                JOIN quarto q ON q.id = rq.quarto_id
+                JOIN quarto q ON q.id = r.quarto_id
                 JOIN categoria cat ON cat.id = q.categoria_id
                 WHERE r.status_reserva <> 'CANCELADA'
                   AND date_trunc('month', r.data_checkin_previsto) = date_trunc('month', current_date)

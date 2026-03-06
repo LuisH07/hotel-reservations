@@ -5,9 +5,10 @@ import java.util.List;
 
 public record HospedagemRequest(
     Long reservaId,
-    String cpfCliente,
-    LocalDate dataCheckinPrevista,
-    LocalDate dataCheckoutPrevista,
+    Long quartoId,
+    String clienteCpf,
+    LocalDate dataEntrada,
+    LocalDate dataSaida,
     PagamentoRequest pagamento,
     List<Long> servicosAdicionaisIds
 ) {}

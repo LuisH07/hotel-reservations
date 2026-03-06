@@ -5,10 +5,9 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (
         SELECT 1 
-        FROM reserva_quarto rq
-        INNER JOIN reserva r ON rq.reserva_id = r.id
-        WHERE rq.quarto_id = OLD.id 
-          AND r.status_reserva = 'CONFIRMADA'
+        FROM reserva 
+        WHERE quarto_id = OLD.id 
+          AND status_reserva = 'CONFIRMADA'
     ) THEN
         RAISE EXCEPTION 'Não é possível excluir o quarto %. Ele possui reservas ativas (CONFIRMADA).', OLD.numero;
     END IF;

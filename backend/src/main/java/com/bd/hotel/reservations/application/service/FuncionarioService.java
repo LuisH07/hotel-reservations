@@ -18,10 +18,10 @@ public class FuncionarioService {
 
     @Transactional
     public void criarPerfil(User user,
-                                   String nome,
-                                   Hotel hotel,
-                                   CargoFuncionario cargo,
-                                   BigDecimal salario, String cpf) {
+    String nome,
+    Hotel hotel,
+    CargoFuncionario cargo,
+    BigDecimal salario, String cpf) {
 
         Funcionario funcionario = Funcionario.builder()
                 .user(user)
@@ -42,15 +42,15 @@ public class FuncionarioService {
 
         User user = funcionario.getUser();
 
-        if (!user.getEmail().equals(request.getEmail())) {
-            if (userRepository.existsByEmail(request.getEmail())) {
-                throw new com.bd.hotel.reservations.exception.business.EmailAlreadyRegisteredException(request.getEmail());
+        if (!user.getEmail().equals(request.email())) {
+            if (userRepository.existsByEmail(request.email())) {
+                throw new com.bd.hotel.reservations.exception.business.EmailAlreadyRegisteredException(request.email());
             }
-            user.updateEmail(request.getEmail());
+            user.updateEmail(request.email());
             userRepository.save(user);
         }
 
-        funcionario.setNome(request.getNome());
+        funcionario.setNome(request.nome());
         
         funcionarioRepository.save(funcionario);
 
@@ -62,15 +62,15 @@ public class FuncionarioService {
         Funcionario funcionario = funcionarioRepository.findByUserId(userId)
                 .orElseThrow(() -> new com.bd.hotel.reservations.exception.notfound.FuncionarioNotFoundException("Funcionário não encontrado para o usuário: " + userId));
 
-        return com.bd.hotel.reservations.web.dto.response.FuncionarioResponse.builder()
-                .id(funcionario.getId())
-                .userId(funcionario.getUser().getId())
-                .nome(funcionario.getNome())
-                .cpf(funcionario.getCpf())
-                .email(funcionario.getUser().getEmail())
-                .cargo(funcionario.getCargo().name())
-                .salario(funcionario.getSalario())
-                .hotelNome(funcionario.getHotel().getNome())
-                .build();
+        return new com.bd.hotel.reservations.web.dto.response.FuncionarioResponse(
+                funcionario.getId(),
+                funcionario.getUser().getId(),
+                funcionario.getNome(),
+                funcionario.getCpf(),
+                funcionario.getUser().getEmail(),
+                funcionario.getCargo().name(),
+                funcionario.getSalario(),
+                funcionario.getHotel().getNome()
+        );
     }
 }

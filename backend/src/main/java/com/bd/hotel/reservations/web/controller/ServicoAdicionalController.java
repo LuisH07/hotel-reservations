@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -21,7 +20,9 @@ public class ServicoAdicionalController {
 
     @PostMapping
     @PreAuthorize("hasRole('FUNCIONARIO')")
-    public ResponseEntity<ServicoAdicionalResponse> criar(@RequestBody @Valid ServicoAdicionalRequest request) {
+    public ResponseEntity<ServicoAdicionalResponse> criar(
+            @RequestBody @Valid ServicoAdicionalRequest request
+    ) {
         ServicoAdicionalResponse response = servicoAdicionalService.criar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -38,7 +39,10 @@ public class ServicoAdicionalController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('FUNCIONARIO')")
-    public ResponseEntity<ServicoAdicionalResponse> atualizar(@PathVariable Long id, @RequestBody @Valid ServicoAdicionalRequest request) {
+    public ResponseEntity<ServicoAdicionalResponse> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid ServicoAdicionalRequest request
+    ) {
         return ResponseEntity.ok(servicoAdicionalService.atualizar(id, request));
     }
 

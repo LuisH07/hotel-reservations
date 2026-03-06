@@ -21,21 +21,21 @@ public class ServicoAdicionalService {
 
     @Transactional
     public ServicoAdicionalResponse criar(ServicoAdicionalRequest request) {
-        ServicoAdicional servico = servicoAdicionalMapper.toEntity(request);
-        ServicoAdicional salvo = servicoAdicionalRepository.save(servico);
+        ServicoAdicional servicoAdicional = servicoAdicionalMapper.toEntity(request);
+        ServicoAdicional salvo = servicoAdicionalRepository.save(servicoAdicional);
         return servicoAdicionalMapper.toResponse(salvo);
     }
 
     @Transactional(readOnly = true)
     public List<ServicoAdicionalResponse> listarTodos() {
-        List<ServicoAdicional> servicos = servicoAdicionalRepository.findAll();
-        return servicoAdicionalMapper.toResponseList(servicos);
+        List<ServicoAdicional> servicosAdicionais = servicoAdicionalRepository.findAll();
+        return servicoAdicionalMapper.toResponseList(servicosAdicionais);
     }
 
     @Transactional(readOnly = true)
     public ServicoAdicionalResponse buscarPorId(Long id) {
-        ServicoAdicional servico = buscarEntidadePorId(id);
-        return servicoAdicionalMapper.toResponse(servico);
+        ServicoAdicional servicoAdicional = buscarEntidadePorId(id);
+        return servicoAdicionalMapper.toResponse(servicoAdicional);
     }
 
     public ServicoAdicional buscarEntidadePorId(Long id) {
@@ -45,17 +45,21 @@ public class ServicoAdicionalService {
 
     @Transactional
     public ServicoAdicionalResponse atualizar(Long id, ServicoAdicionalRequest request) {
-        ServicoAdicional servico = buscarEntidadePorId(id);
+        ServicoAdicional servicoAdicional = buscarEntidadePorId(id);
 
-        servico.atualizar(request.nomeServico(), request.descricao(), request.preco());
+        servicoAdicional.atualizar(
+                request.nomeServico(),
+                request.descricao(),
+                request.preco()
+        );
 
-        ServicoAdicional salvo = servicoAdicionalRepository.save(servico);
+        ServicoAdicional salvo = servicoAdicionalRepository.save(servicoAdicional);
         return servicoAdicionalMapper.toResponse(salvo);
     }
 
     @Transactional
     public void deletar(Long id) {
-        ServicoAdicional servico = buscarEntidadePorId(id);
-        servicoAdicionalRepository.delete(servico);
+        ServicoAdicional servicoAdicional = buscarEntidadePorId(id);
+        servicoAdicionalRepository.delete(servicoAdicional);
     }
 }

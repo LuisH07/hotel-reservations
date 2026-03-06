@@ -1,8 +1,9 @@
 package com.bd.hotel.reservations.web.dto.request;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.math.BigDecimal;
 
 public record ServicoAdicionalRequest(
@@ -12,6 +13,6 @@ public record ServicoAdicionalRequest(
     String descricao,
 
     @NotNull(message = "O preço é obrigatório")
-    @DecimalMin(value = "0.00", message = "O preço deve ser maior ou igual a zero")
+    @PositiveOrZero(message = "O preço deve ser maior ou igual a zero")
     BigDecimal preco
 ) {}

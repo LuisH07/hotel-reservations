@@ -8,6 +8,6 @@ public record ReservaResponse(
         Long clienteId,
         LocalDate dataCheckinPrevisto,
         LocalDate dataCheckoutPrevisto,
-        Set<Long> quartoIds,
+        Long quartoId,
         Set<Long> servicoIds
 ) {}

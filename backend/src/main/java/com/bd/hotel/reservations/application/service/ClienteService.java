@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Objects;
 import com.bd.hotel.reservations.web.dto.response.ClienteResponse;
 import com.bd.hotel.reservations.exception.notfound.ClienteNotFoundException;
@@ -69,5 +71,10 @@ public class ClienteService {
     private Cliente buscarEntidadePorCpf(String cpf) {
         return clienteRepository.findByCpf(cpf)
                 .orElseThrow(() -> new ClienteNotFoundException(cpf));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Cliente> buscarTodosPorIds(List<Long> ids) {
+        return clienteRepository.findAllById(ids);
     }
 }

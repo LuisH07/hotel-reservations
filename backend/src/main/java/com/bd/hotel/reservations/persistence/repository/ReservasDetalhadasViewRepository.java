@@ -10,14 +10,14 @@ import java.util.List;
 @Repository
 public class ReservasDetalhadasViewRepository {
 
-    private final JdbcTemplate jdbc;
+    private final JdbcTemplate jdbcTemplate;
 
-    public ReservasDetalhadasViewRepository(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
+    public ReservasDetalhadasViewRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public List<ReservasDetalhadasViewRowDto> listarTudo() {
-        return jdbc.query("""
+        return jdbcTemplate.query("""
             SELECT
               reserva_id              AS reservaId,
               data_reserva            AS dataReserva,
@@ -33,7 +33,7 @@ public class ReservasDetalhadasViewRepository {
               servicos::text          AS servicos
             FROM vw_reservas_detalhadas
             ORDER BY reserva_id
-        """, (rs, i) -> new ReservasDetalhadasViewRowDto(
+        """, (rs, rowNum) -> new ReservasDetalhadasViewRowDto(
                 rs.getLong("reservaId"),
                 rs.getObject("dataReserva", OffsetDateTime.class),
                 rs.getObject("dataCheckinPrevisto", LocalDate.class),
@@ -47,5 +47,39 @@ public class ReservasDetalhadasViewRepository {
                 rs.getString("quartos"),
                 rs.getString("servicos")
         ));
+    }
+
+    public List<ReservasDetalhadasViewRowDto> buscarPorEmail(String email) {
+        return jdbcTemplate.query("""
+            SELECT
+              reserva_id              AS reservaId,
+              data_reserva            AS dataReserva,
+              data_checkin_previsto   AS dataCheckinPrevisto,
+              data_checkout_previsto  AS dataCheckoutPrevisto,
+              status_reserva          AS statusReserva,
+              cliente_id              AS clienteId,
+              cliente_nome            AS clienteNome,
+              cliente_cpf             AS clienteCpf,
+              cliente_telefone        AS clienteTelefone,
+              qtd_quartos             AS qtdQuartos,
+              quartos::text           AS quartos,
+              servicos::text          AS servicos
+            FROM vw_reservas_detalhadas
+            WHERE cliente_email = ?
+            ORDER BY reserva_id
+        """, (rs, rowNum) -> new ReservasDetalhadasViewRowDto(
+                rs.getLong("reservaId"),
+                rs.getObject("dataReserva", OffsetDateTime.class),
+                rs.getObject("dataCheckinPrevisto", LocalDate.class),
+                rs.getObject("dataCheckoutPrevisto", LocalDate.class),
+                rs.getString("statusReserva"),
+                rs.getLong("clienteId"),
+                rs.getString("clienteNome"),
+                rs.getString("clienteCpf"),
+                rs.getString("clienteTelefone"),
+                rs.getLong("qtdQuartos"),
+                rs.getString("quartos"),
+                rs.getString("servicos")
+        ), email);
     }
 }

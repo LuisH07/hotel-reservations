@@ -1,5 +1,6 @@
 package com.bd.hotel.reservations.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty("errorCode", e.getErrorCode());
         
         return ResponseEntity.status(e.getHttpStatus()).body(problemDetail);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ProblemDetail> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        String detail = "Operação não permitida devido a restrições de integridade no banco de dados.";
+        
+        if (e.getRootCause() != null && e.getRootCause().getMessage() != null) {
+            String rootMessage = e.getRootCause().getMessage();
+            
+            if (rootMessage.contains("Não é possível excluir o quarto")) {
+                detail = "Não é possível excluir este quarto, pois ele possui reservas ativas (CONFIRMADA) vinculadas a ele.";
+            }
+        }
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detail);
+        problemDetail.setTitle("Conflito de Integridade de Dados");
+        problemDetail.setType(URI.create("about:blank"));
+        
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
     }
 
     @ExceptionHandler(Exception.class)

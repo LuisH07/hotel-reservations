@@ -68,7 +68,7 @@ public class ClienteService {
         return clienteMapper.toResponse(cliente);
     }
 
-    private Cliente buscarEntidadePorCpf(String cpf) {
+    public Cliente buscarEntidadePorCpf(String cpf) {
         return clienteRepository.findByCpf(cpf)
                 .orElseThrow(() -> new ClienteNotFoundException(cpf));
     }

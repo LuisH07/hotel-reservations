@@ -36,15 +36,23 @@ const Rooms: React.FC = () => {
   const confirmDelete = async () => {
     if (!roomToDelete) return;
 
-    const success = await deleteRoomService(roomToDelete);
-    
-    if (success) {
+    try {
+      await deleteRoomService(roomToDelete);
+      
       setRooms(prev => prev.filter(room => room.id !== roomToDelete));
       toast.success("Quarto excluído com sucesso!");
-    } else {
-      toast.error("Erro ao excluir quarto do servidor.");
+      
+    } catch (error: unknown) {
+    
+      if (error instanceof Error) {
+        toast.error(error.message, { duration: 5000 });
+      } else {
+        toast.error("Erro inesperado ao excluir o quarto.", { duration: 5000 });
+      }
+      
+    } finally {
+      setRoomToDelete(null);
     }
-    setRoomToDelete(null);
   };
 
   const openModal = (room: Room) => {

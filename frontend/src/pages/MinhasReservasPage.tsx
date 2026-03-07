@@ -32,6 +32,7 @@ export default function MinhasReservasPage() {
         } else if (userEmail) {
           // Cliente: carrega apenas suas reservas
           const results = await getReservationsByEmail(userEmail);
+          console.log(results)
           setReservations(results);
           setHasSearched(true);
         }

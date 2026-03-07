@@ -24,6 +24,15 @@ export interface Room {
   image?: string;
 }
 
+export interface CreateRoomRequest {
+  hotelId: number;
+  categoriaId: number;
+  numero: string;
+  status?: string;
+  area?: number;
+  comodidadeIds: number[];
+}
+
 export const getRoomsByHotel = async (hotelId: number): Promise<Room[]> => {
   try {
     const response = await api.get<Room[]>(`/quartos/hotel/${hotelId}`);
@@ -48,7 +57,7 @@ export const deleteRoomService = async (id: number): Promise<boolean> => {
   }
 };
 
-export const updateRoomService = async (id: number, data: Partial<Room>): Promise<boolean> => {
+export const updateRoomService = async (id: number, data: CreateRoomRequest): Promise<boolean> => {
   try {
     await api.put(`/quartos/${id}`, data);
     return true;
@@ -56,4 +65,9 @@ export const updateRoomService = async (id: number, data: Partial<Room>): Promis
     console.error('Erro ao atualizar quarto:', error);
     return false;
   }
+};
+
+export const createQuarto = async (data: CreateRoomRequest) => {
+  const response = await api.post('/quartos', data);
+  return response.data;
 };

@@ -27,7 +27,7 @@ const ProtectedRoute = ({ allowedRole }: { allowedRole: string }) => {
 
   if (!payload || payload.role !== allowedRole) {
     toast.error("Usuário não autorizado!")
-    return <Navigate to="/" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <Outlet />;

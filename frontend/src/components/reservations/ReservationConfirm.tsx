@@ -4,8 +4,8 @@ import styles from './ReservationConfirm.module.css';
 import { ChevronLeft, CheckCircle, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-// Import de tipo caso seu ambiente exija prefixo 'type'
 import type { AdditionalServiceData } from './AdditionalModal';
+import { getServicosAdicionais } from '../../services/hostingService'; // <-- Importado aqui
 
 const ReservationConfirm = () => {
   const location = useLocation();
@@ -15,14 +15,36 @@ const ReservationConfirm = () => {
 
   // --- Estados dos Serviços ---
   const [isServiceOpen, setIsServiceOpen] = useState(false);
-  const [servicosDisponiveis] = useState<AdditionalServiceData[]>([
-    { id: 1, nomeServico: 'Frigobar', preco: 50.0, descricao: '' },
-    { id: 2, nomeServico: 'Café no Quarto', preco: 35.0, descricao: '' },
-    { id: 3, nomeServico: 'Estacionamento VIP', preco: 40.0, descricao: '' }
-  ]);
+  
+  // 1. Iniciando vazio
+  const [servicosDisponiveis, setServicosDisponiveis] = useState<AdditionalServiceData[]>([]);
   const [selectedServices, setSelectedServices] = useState<number[]>([]);
 
   const { room, checkIn, checkOut } = location.state || {};
+
+  // 2. Carregando os serviços da API ao montar a tela
+  useEffect(() => {
+    const carregarServicos = async () => {
+      try {
+        const dados = await getServicosAdicionais();
+        
+        // Mapeando para garantir que o formato bate com o AdditionalServiceData
+        const servicosFormatados: AdditionalServiceData[] = dados.map((servico: any) => ({
+          id: servico.id,
+          nomeServico: servico.nomeServico,
+          descricao: servico.descricao || '',
+          preco: servico.preco
+        }));
+
+        setServicosDisponiveis(servicosFormatados);
+      } catch (error) {
+        console.error("Erro ao carregar serviços adicionais:", error);
+        toast.error("Não foi possível carregar as opções de serviços extras.");
+      }
+    };
+
+    carregarServicos();
+  }, []);
 
   // Fechar dropdown ao clicar fora
   useEffect(() => {
@@ -68,10 +90,11 @@ const ReservationConfirm = () => {
     setIsSubmitting(true);
     const token = localStorage.getItem('token');
 
+    // Lembrete: Se você ajustou o JWT Decoder, o ID do cliente deve ser adicionado aqui!
     const reservationData = {
       dataCheckinPrevisto: checkIn,
       dataCheckoutPrevisto: checkOut,
-      quartoIds: [room.id],
+      quartoId: room.id,
       servicosAdicionaisIds: selectedServices // Enviando os serviços escolhidos
     };
 
@@ -171,6 +194,11 @@ const ReservationConfirm = () => {
                       </div>
                     </label>
                   ))}
+                  {servicosDisponiveis.length === 0 && (
+                     <div style={{ padding: '12px', color: '#666', fontSize: '14px' }}>
+                       Nenhum serviço disponível no momento.
+                     </div>
+                  )}
                 </div>
               )}
             </div>

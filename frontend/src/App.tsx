@@ -45,7 +45,10 @@ function App() {
 
           <Route path="quarto/:id" element={<RoomPage />} />
 
-          <Route path="reserva/confirmacao/:id" element={<ReservationConfirm />} />
+          <Route element={<ProtectedRoute allowedRole="CLIENTE" />}>
+            <Route path="reserva/confirmacao/:id" element={<ReservationConfirm />} />
+          </Route>
+
           <Route path="reserva/editar/:id" element={<EditReservationPage />} />
 
           <Route path="home/relatorios" element={<RelatorioPage />} />

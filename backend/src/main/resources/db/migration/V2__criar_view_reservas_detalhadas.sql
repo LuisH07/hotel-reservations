@@ -4,18 +4,18 @@ WITH quartos_por_reserva AS (
         r.id AS reserva_id,
         1 AS qtd_quartos,
         jsonb_agg(
-                jsonb_build_object(
-                        'quarto_id', q.id,
-                        'numero', q.numero,
-                        'status', q.status,
-                        'area', q.area,
-                        'hotel_id', h.id,
-                        'hotel_nome', h.nome,
-                        'categoria_id', cat.id,
-                        'categoria_nome', cat.nome,
-                        'capacidade', cat.capacidade,
-                        'preco_diaria', cat.preco_diaria
-                )
+            jsonb_build_object(
+                'quarto_id', q.id,
+                'numero', q.numero,
+                'status', q.status,
+                'area', q.area,
+                'hotel_id', h.id,
+                'hotel_nome', h.nome,
+                'categoria_id', cat.id,
+                'categoria_nome', cat.nome,
+                'capacidade', cat.capacidade,
+                'preco_diaria', cat.preco_diaria
+            )
         ) AS quartos
     FROM reserva r
              JOIN quarto q ON q.id = r.quarto_id
@@ -50,11 +50,14 @@ SELECT
     c.nome AS cliente_nome,
     c.cpf  AS cliente_cpf,
     c.telefone AS cliente_telefone,
+    
+    u.email AS cliente_email, 
 
     COALESCE(qr.qtd_quartos, 0) AS qtd_quartos,
     COALESCE(qr.quartos, '[]'::jsonb) AS quartos,
     COALESCE(sr.servicos, '[]'::jsonb) AS servicos
 FROM reserva r
          JOIN cliente c ON c.id = r.cliente_id
+         JOIN users u ON u.id = c.user_id 
          LEFT JOIN quartos_por_reserva qr ON qr.reserva_id = r.id
          LEFT JOIN servicos_por_reserva sr ON sr.reserva_id = r.id;

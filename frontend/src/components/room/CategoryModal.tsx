@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from '../../pages/NewRoomPage.module.css';
 
-interface CategoryData {
+export interface CategoryData {
   id?: number;
   nome: string;
   precoDiaria: number;
@@ -10,23 +10,32 @@ interface CategoryData {
 
 interface CategoryModalProps {
   onClose: () => void;
-  onSave: (categoria: CategoryData) => void;
+  // Alterado para suportar chamadas assíncronas
+  onSave: (categoria: CategoryData) => Promise<void> | void; 
   initialData?: CategoryData | null; 
 }
 
 const CategoryModal: React.FC<CategoryModalProps> = ({ onClose, onSave, initialData }) => {
   const isEditing = !!initialData;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    onSave({
-      id: initialData?.id, // Mantém o ID se for edição
-      nome: formData.get('nome') as string,
-      precoDiaria: Number(formData.get('precoDiaria')),
-      capacidade: Number(formData.get('capacidade')),
-    });
+    setIsSubmitting(true);
+    
+    try {
+      await onSave({
+        id: initialData?.id,
+        nome: formData.get('nome') as string,
+        precoDiaria: Number(formData.get('precoDiaria')),
+        capacidade: Number(formData.get('capacidade')),
+      });
+    } finally {
+      // Libera o botão independente de dar erro ou sucesso
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -45,6 +54,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ onClose, onSave, initialD
               placeholder="Ex: Suíte Master" 
               defaultValue={initialData?.nome} 
               required 
+              disabled={isSubmitting}
             />
           </div>
 
@@ -58,6 +68,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ onClose, onSave, initialD
                 placeholder="0.00" 
                 defaultValue={initialData?.precoDiaria} 
                 required 
+                disabled={isSubmitting}
               />
             </div>
             <div className={styles.inputGroup}>
@@ -68,14 +79,17 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ onClose, onSave, initialD
                 placeholder="Ex: 2" 
                 defaultValue={initialData?.capacidade} 
                 required 
+                disabled={isSubmitting}
               />
             </div>
           </div>
 
           <div className={styles.dialogBtns} style={{ marginTop: '1.5rem' }}>
-            <button type="button" onClick={onClose}>Cancelar</button>
-            <button type="submit" className={styles.confirmBtn}>
-              {isEditing ? 'Salvar Alterações' : 'Criar Categoria'}
+            <button type="button" onClick={onClose} disabled={isSubmitting}>
+              Cancelar
+            </button>
+            <button type="submit" className={styles.confirmBtn} disabled={isSubmitting}>
+              {isSubmitting ? 'Salvando...' : (isEditing ? 'Salvar Alterações' : 'Criar Categoria')}
             </button>
           </div>
         </form>

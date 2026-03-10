@@ -352,7 +352,7 @@ Teste via Frontend / Interface**
 1. Acesse o painel de **Gerenciamento de Quartos**.
 2. Tente excluir um quarto que já possua uma reserva confirmada.
 3. **Resultado esperado:** O sistema bloqueará a exclusão e exibirá um alerta (Toast) com a mensagem:
-   > *"Não foi possível realizar o check-in. Verifique se esta reserva já possui uma hospedagem ativa.*
+   > *"Não é possível excluir este quarto. Ele possui reservas ou hospedagens vinculadas a ele no sistema."*
 ---
 
 ## Guia de Contribuição
